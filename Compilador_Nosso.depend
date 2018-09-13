@@ -1,0 +1,21 @@
+# depslib dependency file v1.0
+1536706081 source:c:\users\allan.costa.a\desktop\compilador\compilador_nosso\mdc.c
+	<stdio.h>
+	<stdlib.h>
+
+1536707133 source:c:\users\allan.costa.a\desktop\compilador\compilador_nosso\main.cpp
+	<iostream>
+	<stdio.h>
+	<string.h>
+	"scan.h"
+
+1536704255 c:\users\allan.costa.a\desktop\compilador\compilador_nosso\scan.h
+	<stdio.h>
+
+1536708640 source:c:\users\allan.costa.a\desktop\compilador\compilador_nosso\scan.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"scan.h"
+
