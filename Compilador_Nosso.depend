@@ -35,3 +35,19 @@
 	<ctype.h>
 	"scan.h"
 
+1536942744 source:/home/david/Desktop/Compiladores/main.cpp
+	<iostream>
+	<stdio.h>
+	<string.h>
+	"scan.h"
+
+1536928159 /home/david/Desktop/Compiladores/scan.h
+	<stdio.h>
+
+1536943638 source:/home/david/Desktop/Compiladores/scan.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"scan.h"
+
