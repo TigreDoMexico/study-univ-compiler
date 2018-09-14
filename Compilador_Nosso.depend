@@ -19,3 +19,19 @@
 	<ctype.h>
 	"scan.h"
 
+1536926062 source:d:\rep\compiladores\main.cpp
+	<iostream>
+	<stdio.h>
+	<string.h>
+	"scan.h"
+
+1536926062 d:\rep\compiladores\scan.h
+	<stdio.h>
+
+1536926062 source:d:\rep\compiladores\scan.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	"scan.h"
+
