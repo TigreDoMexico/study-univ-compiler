@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<string>
 #include <ctype.h>
 #include "scan.h"
 
@@ -34,23 +35,25 @@ void getNum(FILE *p);
 Tk *getTokens(char *nome)
 {
     Tk *TkList = NULL, *elemento = NULL;
-    FILE *P;
+    FILE *p;
     char c;
 
-    P = abreArq(nome);
+    p = abreArq(nome);
 
     linha = 1;
     ntoken = 0;
+    nextChar(p);
+    printf("LINHA %d - ", linha);
 
     do{
-        //printf("linha %d ", linha);
-        scan(P);
+        scan(p);
 
         if(token[0] != '\0')
-            printf("%s\n", token);
+            printf("%s ", token);
 
     } while(look != EOF);
 
+    printf("\n");
     printf("Total de linhas: %d\n", linha);
     printf("Total de tokens: %d\n", ntoken);
 
@@ -65,15 +68,14 @@ Tk *getTokens(char *nome)
  ********************************/
 void scan(FILE *p)
 {
-    // se look for vazio, skipwhite
-    // se
-    // se nao verificar se e numero
     memset(token, 0, 256);
-    nextChar(p);
+    char aux;
 
-    if(look == '\n' || look == '/0'){
+    if(look == '\n' || look == '\0'){
 
-        linha++;
+        nextChar(p);
+        printf("\n");
+        printf("LINHA %d - ", linha);
 
     }else{
 
@@ -86,9 +88,10 @@ void scan(FILE *p)
             if(isOp(look) == 0)
                 getWord(p);
             else
-                printf("%c", look);
+                getOp(p);
         }
     }
+
 }
 
 /*********************************
@@ -100,8 +103,6 @@ FILE *abreArq(char *nome)
 {
     char *var;
     FILE *in;
-
-    // aqui tem um exemplo do uso da funcao strstr
 
     var = strstr(nome,".c");
     if(var ==NULL) // O ARQUIVO N�O TEM EXTEN��O
@@ -182,8 +183,11 @@ void nextChar(FILE *p)
  ********************************/
 void skipWhite(FILE *p)
 {
-    while (look == ' ' || look == '\t')
+    while (look == ' ' || look == '\t'){
+        printf("%c ", look);
         nextChar(p);
+    }
+
 }
 
 /*********************************
@@ -201,9 +205,26 @@ void newLine(FILE *p)
  * desc:
  * returno:
  ********************************/
-void skipComment(FILE *p)
+void skipComment(FILE *p, int isSingleLine)
 {
+    std::string doubleOperator = "";
+    char aux = look;
+    nextChar(p);
 
+    doubleOperator += aux;
+    doubleOperator += look;
+
+    while((isSingleLine == 1 && aux != '\n') || (isSingleLine == 0 && doubleOperator != "*/")){
+        aux = look;
+        nextChar(p);
+
+        doubleOperator = "";
+        doubleOperator += aux;
+        doubleOperator += look;
+
+        //printf("%c", aux);
+        //printf("%c", look);
+    }
 }
 
 /*********************************
@@ -213,10 +234,26 @@ void skipComment(FILE *p)
  ********************************/
 void getNum(FILE *p)
 {
+    printf("%c ", look);
+    ntoken++;
+    nextChar(p);
+}
 
+/*********************************
+ * Nome: getString
+ * desc:
+ * returno:
+ ********************************/
+void getString(FILE *p)
+{
+    while(look != '"'){
+        printf("%c", look);
+        nextChar(p);
+    }
 
-    int i;
-
+    printf("%c ", look);
+    nextChar(p);
+    ntoken++;
 }
 
 /*********************************
@@ -236,18 +273,57 @@ void getWord(FILE *p)
 
     if(look == '\n')
         linha++;
+
+    ntoken++;
 }
 
 /*********************************
  * Nome: getOp
- * desc:
+ * desc: printa o caractere
  * returno:
  ********************************/
 void getOp(FILE *p)
 {
-    int i;
+    int i = 0;
+    char aux = look;
+    std::string doubleOperator = "";
+    std::string operators[17] = {"!=", "==", ">=", "<=", "+=", "-=", "*=", "/=", "%=", "||", "&&", "<<", ">>", "::", "++", "--", "**"};
 
+    nextChar(p);
 
+    if(look == '\n')
+        linha++;
+
+    if(aux == '"'){
+        getString(p);
+    }else{
+        if(aux == '/' && (look == '/' || look == '*')){
+            skipComment(p, look == '/');
+        }else{
+            if(isOp(look) == 0){
+                printf("%c ", aux);
+                ntoken++;
+            }else{
+                int hasAny = 0;
+
+                doubleOperator += aux;
+                doubleOperator += look;
+
+                for(i = 0; i < 16; i++){
+                    if(operators[i] == doubleOperator){
+                        hasAny = 1;
+                        break;
+                    }
+                }
+
+                if(hasAny == 1){
+                    ntoken++;
+                    printf("%c", aux);
+                    printf("%c ", look);
+                }
+            }
+        }
+    }
 }
 
 /*********************************
@@ -257,6 +333,6 @@ void getOp(FILE *p)
  ********************************/
 int isOp(char c)
 {
-    return (strchr("#,+-*/<>:=!", c) != NULL); //Returns a pointer to the first occurrence of character in the C string str.
+    return (strchr("#,.+-*/<>:=!", c) != NULL); //Returns a pointer to the first occurrence of character in the C string str.
 }
 

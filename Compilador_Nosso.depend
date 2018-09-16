@@ -51,3 +51,20 @@
 	<ctype.h>
 	"scan.h"
 
+1537135616 source:c:\users\tigre\onedrive\documentos\compiladores\main.cpp
+	<iostream>
+	<stdio.h>
+	<string.h>
+	"scan.h"
+
+1536800231 c:\users\tigre\onedrive\documentos\compiladores\scan.h
+	<stdio.h>
+
+1537134931 source:c:\users\tigre\onedrive\documentos\compiladores\scan.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<string>
+	<ctype.h>
+	"scan.h"
+
