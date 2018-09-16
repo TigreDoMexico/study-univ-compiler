@@ -49,8 +49,6 @@ Tk *getTokens(char *nome)
         if(token[0] != '\0')
             printf("%s\n", token);
 
-        //printf("%c", look);
-
     } while(look != EOF);
 
     printf("Total de linhas: %d\n", linha);
@@ -70,25 +68,26 @@ void scan(FILE *p)
     // se look for vazio, skipwhite
     // se
     // se nao verificar se e numero
-
+    memset(token, 0, 256);
     nextChar(p);
 
+    if(look == '\n' || look == '/0'){
 
-
-    if(look == ' ' || look == '\t')
-        skipWhite(p);
-
-    if(look == '\n'){
         linha++;
-        nextChar(p);
-    }
 
-
-    if(look >= '0' && look <= '9'){
-        getNum(p);
     }else{
-        if(isOp(look) == 0)
-            getWord(p);
+
+        if(look == ' ' || look == '\t')
+            skipWhite(p);
+
+        if(look >= '0' && look <= '9'){
+            getNum(p);
+        }else{
+            if(isOp(look) == 0)
+                getWord(p);
+            else
+                printf("%c", look);
+        }
     }
 }
 
@@ -229,13 +228,14 @@ void getWord(FILE *p)
 {
     int i = 0;
 
-    memset(token, 0, 256);
-
     do{
         token[i] = look;
         nextChar(p);
         i++;
     }while(look != ' ' && look != '\n' && isOp(look) == 0 && i < 256);
+
+    if(look == '\n')
+        linha++;
 }
 
 /*********************************
