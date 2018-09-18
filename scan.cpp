@@ -5,13 +5,13 @@
 #include <ctype.h>
 #include "scan.h"
 
+
 // variaveis globais
 int linha;
 int coluna;
 char look;
 char token[256];
 int ntoken;
-
 
 // funcoes locais
 FILE *abreArq(char *nome);
@@ -48,6 +48,18 @@ Tk *getTokens(char *nome)
     do{
         scan(p);
 
+        //instanciar struct
+        //inserir na lista
+
+            Tk* item = (Tk*) malloc(sizeof(Tk));
+            item->prox = NULL;
+            item->linha = linha;
+            item->nome = (char) malloc(sizeof()*strlen(token));
+
+            strcpy(item->nome, token);
+
+            insereTk(*Tk, *item);
+
         if(token[0] != '\0')
             printf("%s ", token);
 
@@ -68,12 +80,33 @@ Tk *getTokens(char *nome)
  ********************************/
 void scan(FILE *p)
 {
+    //char look
+    // look = fgetc(p);
+    //printf("%c", look);
+    //if(look >47 && look <58) // se é numero
+    //{
+            // getNum();
+    //}else if (look >64 && < 91 || look > 96 && <123)
+    //{
+            //getName();
+    //}else
+        //isopr();
+
+
+
+    // How to Preencher o  structo
+    //
+
+
+
+
+
     memset(token, 0, 256);
     char aux;
 
     if(look == '\n' || look == '\0'){
-
-        nextChar(p);
+        newLine(p);
+        //nextChar(p);
         printf("\n");
         printf("LINHA %d - ", linha);
 
@@ -127,6 +160,8 @@ FILE *abreArq(char *nome)
 void insereTk(Tk *TkList, Tk *TkElemento)
 {
     Tk *ptr;
+
+
 
 
 }
@@ -191,12 +226,18 @@ void skipWhite(FILE *p)
 }
 
 /*********************************
- * Nome: removeSpace
+ * Nome: newLine
  * desc:
  * returno:
  ********************************/
 void newLine(FILE *p)
 {
+
+
+    do{
+        look = getc(p);
+    }while(look == '\n' || look == '\0');
+
 
 }
 
@@ -271,8 +312,12 @@ void getWord(FILE *p)
         i++;
     }while(look != ' ' && look != '\n' && isOp(look) == 0 && i < 256);
 
+
+
     if(look == '\n')
         linha++;
+
+
 
     ntoken++;
 }
