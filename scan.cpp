@@ -27,14 +27,16 @@ void getOp(FILE *p);
 int isOp(char c);
 void getNum(FILE *p);
 
+Tk *TkList = NULL;
+
 /***********************************************
  * Nome: getTokens
  * desc: obtem todos os tokens do arquivo nome
  * returno: ponteiro para a lista de tokens
  ***********************************************/
-Tk *getTokens(char *nome)
+Tk* getTokens(char *nome)
 {
-    Tk *TkList = NULL, *elemento = NULL;
+    Tk *elemento = NULL;
     FILE *p;
     char c;
 
@@ -43,7 +45,6 @@ Tk *getTokens(char *nome)
     linha = 1;
     ntoken = 0;
     nextChar(p);
-    printf("LINHA %d - ", linha);
 
     do{
         scan(p);
@@ -51,17 +52,14 @@ Tk *getTokens(char *nome)
         //instanciar struct
         //inserir na lista
 
-            Tk* item = (Tk*) malloc(sizeof(Tk));
-            item->prox = NULL;
-            item->linha = linha;
-            item->nome = (char) malloc(sizeof()*strlen(token));
+        Tk* item = (Tk*) malloc(sizeof(Tk));
+        item->prox = NULL;
+        item->linha = linha;
+        item->nome = (char*)malloc(strlen(token) * sizeof(char));
 
-            strcpy(item->nome, token);
+        strcpy(item->nome, token);
 
-            insereTk(*Tk, *item);
-
-        if(token[0] != '\0')
-            printf("%s ", token);
+        insereTk(item);
 
     } while(look != EOF);
 
@@ -97,33 +95,22 @@ void scan(FILE *p)
     // How to Preencher o  structo
     //
 
-
-
-
-
     memset(token, 0, 256);
     char aux;
 
-    if(look == '\n' || look == '\0'){
-        newLine(p);
-        //nextChar(p);
-        printf("\n");
-        printf("LINHA %d - ", linha);
+    // PEGANDO P PROXIMO CARACTERE
+    nextChar(p);
 
-    }else{
+    // PROXIMA LINHA
+    newLine(p);
 
-        if(look == ' ' || look == '\t')
-            skipWhite(p);
+    // PULAR BRANCO
+    skipWhite(p);
 
-        if(look >= '0' && look <= '9'){
-            getNum(p);
-        }else{
-            if(isOp(look) == 0)
-                getWord(p);
-            else
-                getOp(p);
-        }
-    }
+    // PEGAR PALAVRA
+    if((look > 64 && look < 91) || (look > 96 && look < 123))
+        getWord(p);
+
 
 }
 
@@ -138,7 +125,7 @@ FILE *abreArq(char *nome)
     FILE *in;
 
     var = strstr(nome,".c");
-    if(var ==NULL) // O ARQUIVO N�O TEM EXTEN��O
+    if(var == NULL) // O ARQUIVO N�O TEM EXTEN��O
     {
         printf("Arquivo : %s invalido!\n",nome);
         exit(1); // cada erro ser� tratado com uma sa�da diferente de 0.
@@ -157,13 +144,18 @@ FILE *abreArq(char *nome)
  * desc:
  * returno: void
  ********************************/
-void insereTk(Tk *TkList, Tk *TkElemento)
+void insereTk(Tk *TkElemento)
 {
     Tk *ptr;
 
+    if(TkList == NULL)
+        TkList = TkElemento;
+    else{
 
+        for(ptr = TkList; ptr->prox != NULL; ptr = ptr->prox);
 
-
+        ptr->prox = TkElemento;
+    }
 }
 
 /*********************************
@@ -175,6 +167,11 @@ void exibeTk(Tk *TkList)
 {
     Tk *ptr;
 
+    for(ptr = TkList; ptr->prox != NULL; ptr = ptr->prox){
+        printf(ptr->nome);
+        printf(" ");
+    }
+
 }
 
 /*********************************
@@ -185,6 +182,8 @@ void exibeTk(Tk *TkList)
 void liberaTk(Tk *TkList)
 {
     Tk *T,*ptr;
+
+
 
 }
 
@@ -219,10 +218,8 @@ void nextChar(FILE *p)
 void skipWhite(FILE *p)
 {
     while (look == ' ' || look == '\t'){
-        printf("%c ", look);
         nextChar(p);
     }
-
 }
 
 /*********************************
@@ -232,13 +229,13 @@ void skipWhite(FILE *p)
  ********************************/
 void newLine(FILE *p)
 {
-
-
-    do{
+    while(look == '\n' || look == 13)
+    {
         look = getc(p);
-    }while(look == '\n' || look == '\0');
 
-
+        if(look == '\n')
+            linha++;
+    }
 }
 
 /*********************************
@@ -275,7 +272,7 @@ void skipComment(FILE *p, int isSingleLine)
  ********************************/
 void getNum(FILE *p)
 {
-    printf("%c ", look);
+
     ntoken++;
     nextChar(p);
 }
@@ -288,11 +285,9 @@ void getNum(FILE *p)
 void getString(FILE *p)
 {
     while(look != '"'){
-        printf("%c", look);
         nextChar(p);
     }
 
-    printf("%c ", look);
     nextChar(p);
     ntoken++;
 }
@@ -312,13 +307,7 @@ void getWord(FILE *p)
         i++;
     }while(look != ' ' && look != '\n' && isOp(look) == 0 && i < 256);
 
-
-
-    if(look == '\n')
-        linha++;
-
-
-
+    token[i] = '\0';
     ntoken++;
 }
 
@@ -346,7 +335,6 @@ void getOp(FILE *p)
             skipComment(p, look == '/');
         }else{
             if(isOp(look) == 0){
-                printf("%c ", aux);
                 ntoken++;
             }else{
                 int hasAny = 0;
@@ -363,8 +351,6 @@ void getOp(FILE *p)
 
                 if(hasAny == 1){
                     ntoken++;
-                    printf("%c", aux);
-                    printf("%c ", look);
                 }
             }
         }

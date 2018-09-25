@@ -13,14 +13,20 @@
 // ********************************/
 int main(int argc, char *argv[])
 {
-    //char nome[100];
-
-    //printf("Digite o nome do arquivo:");
-    //scanf("%s", &nome);
-
+    char nome[50] = "mdc.c";
     //Tk* tokens = getTokens(nome);
 
-    Tk* tokens = getTokens("mdc.c");
+    if (argc == 2)
+    {
+        strcpy (nome, argv[1]);
+    }else
+    {
+        //printf("Digite o nome do arquivo:");
+        //scanf("%s", &nome);
+    }
+
+    Tk* tokens = getTokens(nome);
+    exibeTk(tokens);
 
     return 0;
 }
