@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include "scan.h"
 
-
 // variaveis globais
 int linha;
 int coluna;
@@ -18,6 +17,7 @@ FILE *abreArq(char *nome);
 void nextChar(FILE *p);
 void scan(FILE *P);
 void skipWhite(FILE *p);
+void skipString(FILE *p);
 void newLine(FILE *p);
 void getWord(FILE *p);
 void getNum(FILE *p);
@@ -107,9 +107,25 @@ void scan(FILE *p)
     // PULAR BRANCO
     skipWhite(p);
 
+    // PULAR STRING
+    if(look == 34)
+        skipString(p);
+
     // PEGAR PALAVRA
-    if((look > 64 && look < 91) || (look > 96 && look < 123))
+    if((look > 64 && look < 91) || (look > 96 && look < 123)){
         getWord(p);
+    }else{
+        // PEGAR NUMERO
+        if((look > 48 && look < 58)){
+            getNum(p);
+        }else{
+
+        }
+    }
+
+
+
+
 
 
 }
@@ -125,10 +141,10 @@ FILE *abreArq(char *nome)
     FILE *in;
 
     var = strstr(nome,".c");
-    if(var == NULL) // O ARQUIVO N�O TEM EXTEN��O
+    if(var == NULL) // O ARQUIVO NAO TEM EXTENSAO
     {
         printf("Arquivo : %s invalido!\n",nome);
-        exit(1); // cada erro ser� tratado com uma sa�da diferente de 0.
+        exit(1); // cada erro sera tratado com uma sa�da diferente de 0.
     }
     in = fopen(nome,"r");
     if(in == NULL)
@@ -223,6 +239,20 @@ void skipWhite(FILE *p)
 }
 
 /*********************************
+ * Nome: skipString
+ * desc:
+ * returno:
+ ********************************/
+void skipString(FILE *p)
+{
+    nextChar(p);
+
+    while(look != 34){
+        nextChar(p);
+    }
+}
+
+/*********************************
  * Nome: newLine
  * desc:
  * returno:
@@ -231,10 +261,13 @@ void newLine(FILE *p)
 {
     while(look == '\n' || look == 13)
     {
-        look = getc(p);
-
         if(look == '\n')
             linha++;
+
+        look = getc(p);
+
+        //if(look == '\n')
+          //  linha++;
     }
 }
 
@@ -272,23 +305,15 @@ void skipComment(FILE *p, int isSingleLine)
  ********************************/
 void getNum(FILE *p)
 {
+    int i = 0;
 
-    ntoken++;
-    nextChar(p);
-}
-
-/*********************************
- * Nome: getString
- * desc:
- * returno:
- ********************************/
-void getString(FILE *p)
-{
-    while(look != '"'){
+    do{
+        token[i] = look;
         nextChar(p);
-    }
+        i++;
+    }while(look > 48 && look < 58 && i < 256);
 
-    nextChar(p);
+    token[i] = '\0';
     ntoken++;
 }
 
@@ -305,7 +330,7 @@ void getWord(FILE *p)
         token[i] = look;
         nextChar(p);
         i++;
-    }while(look != ' ' && look != '\n' && isOp(look) == 0 && i < 256);
+    }while((look > 64 && look < 91) || (look > 96 && look < 123) && i < 256);
 
     token[i] = '\0';
     ntoken++;
@@ -325,36 +350,38 @@ void getOp(FILE *p)
 
     nextChar(p);
 
-    if(look == '\n')
-        linha++;
-
-    if(aux == '"'){
-        getString(p);
-    }else{
-        if(aux == '/' && (look == '/' || look == '*')){
+        if(aux == 47 && (look == 47 || look == 42)){
             skipComment(p, look == '/');
         }else{
             if(isOp(look) == 0){
+                token[i] = aux;
+                token[i + 1] = '\0';
                 ntoken++;
             }else{
-                int hasAny = 0;
+                int hasany = 0;
 
                 doubleOperator += aux;
                 doubleOperator += look;
 
                 for(i = 0; i < 16; i++){
                     if(operators[i] == doubleOperator){
-                        hasAny = 1;
+                        hasany = 1;
                         break;
                     }
                 }
 
-                if(hasAny == 1){
+                if(hasany == 1){
+                    token[0] = aux;
+                    token[1] = look;
+                    token[2] = '\0';
+
                     ntoken++;
                 }
             }
         }
-    }
+
+
+
 }
 
 /*********************************
