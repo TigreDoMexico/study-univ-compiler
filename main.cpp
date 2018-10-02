@@ -21,8 +21,8 @@ int main(int argc, char *argv[])
         strcpy (nome, argv[1]);
     }else
     {
-        //printf("Digite o nome do arquivo:");
-        //scanf("%s", &nome);
+        printf("Digite o nome do arquivo:");
+        scanf("%s", &nome);
     }
 
     Tk* tokens = getTokens(nome);

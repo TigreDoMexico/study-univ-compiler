@@ -63,11 +63,6 @@ Tk* getTokens(char *nome)
 
     } while(look != EOF);
 
-    printf("\n");
-    printf("Total de linhas: %d\n", linha);
-    printf("Total de tokens: %d\n", ntoken);
-
-
     return TkList;
 }
 
@@ -78,28 +73,11 @@ Tk* getTokens(char *nome)
  ********************************/
 void scan(FILE *p)
 {
-    //char look
-    // look = fgetc(p);
-    //printf("%c", look);
-    //if(look >47 && look <58) // se é numero
-    //{
-            // getNum();
-    //}else if (look >64 && < 91 || look > 96 && <123)
-    //{
-            //getName();
-    //}else
-        //isopr();
-
-
-
     // How to Preencher o  structo
     //
 
     memset(token, 0, 256);
     char aux;
-
-    // PEGANDO P PROXIMO CARACTERE
-    nextChar(p);
 
     // PROXIMA LINHA
     newLine(p);
@@ -108,26 +86,27 @@ void scan(FILE *p)
     skipWhite(p);
 
     // PULAR STRING
-    if(look == 34)
+    if(look == 34){
         skipString(p);
-
-    // PEGAR PALAVRA
-    if((look > 64 && look < 91) || (look > 96 && look < 123)){
-        getWord(p);
     }else{
-        // PEGAR NUMERO
-        if((look > 48 && look < 58)){
-            getNum(p);
+        // PEGAR PALAVRA
+        if((look > 64 && look < 91) || (look > 96 && look < 123)){
+            getWord(p);
         }else{
-
+            // PEGAR NUMERO
+            if((look > 48 && look < 58)){
+                getNum(p);
+            }else{
+                getOp(p);
+            }
         }
     }
 
 
 
 
-
-
+    // PEGANDO P PROXIMO CARACTERE
+    //nextChar(p);
 }
 
 /*********************************
@@ -183,10 +162,23 @@ void exibeTk(Tk *TkList)
 {
     Tk *ptr;
 
+    int li = 0;
+
     for(ptr = TkList; ptr->prox != NULL; ptr = ptr->prox){
-        printf(ptr->nome);
-        printf(" ");
+        if(ptr->linha != li){
+            li = ptr->linha;
+            printf("\nLINHA %d: ", li);
+            printf("%s ", ptr->nome);
+        }else{
+
+            printf("%s", ptr->nome);
+            printf(" ");
+        }
     }
+
+    printf("\n\n");
+    printf("Total de linhas: %d\n", linha - 1);
+    printf("Total de tokens: %d\n", ntoken);
 
 }
 
@@ -198,9 +190,6 @@ void exibeTk(Tk *TkList)
 void liberaTk(Tk *TkList)
 {
     Tk *T,*ptr;
-
-
-
 }
 
 /*********************************
@@ -245,11 +234,28 @@ void skipWhite(FILE *p)
  ********************************/
 void skipString(FILE *p)
 {
+    int i = 1;
+    token[0] = look;
+
     nextChar(p);
 
-    while(look != 34){
+    while(look != 34 && i < 253){
+        token[i] = look;
         nextChar(p);
+
+        i++;
     }
+
+    nextChar(p);
+
+    if(i < 253){
+        token[i] = '\"';
+        token[i + 1] = '\0';
+    }else{
+        token[i] = '\0';
+    }
+
+
 }
 
 /*********************************
@@ -261,13 +267,11 @@ void newLine(FILE *p)
 {
     while(look == '\n' || look == 13)
     {
-        if(look == '\n')
+        if(look == '\n'){
             linha++;
+        }
 
         look = getc(p);
-
-        //if(look == '\n')
-          //  linha++;
     }
 }
 
@@ -344,44 +348,15 @@ void getWord(FILE *p)
 void getOp(FILE *p)
 {
     int i = 0;
-    char aux = look;
-    std::string doubleOperator = "";
-    std::string operators[17] = {"!=", "==", ">=", "<=", "+=", "-=", "*=", "/=", "%=", "||", "&&", "<<", ">>", "::", "++", "--", "**"};
 
-    nextChar(p);
+    do{
+        token[i] = look;
+        nextChar(p);
+        i++;
+    }while(isOp(look) == 1);
 
-        if(aux == 47 && (look == 47 || look == 42)){
-            skipComment(p, look == '/');
-        }else{
-            if(isOp(look) == 0){
-                token[i] = aux;
-                token[i + 1] = '\0';
-                ntoken++;
-            }else{
-                int hasany = 0;
-
-                doubleOperator += aux;
-                doubleOperator += look;
-
-                for(i = 0; i < 16; i++){
-                    if(operators[i] == doubleOperator){
-                        hasany = 1;
-                        break;
-                    }
-                }
-
-                if(hasany == 1){
-                    token[0] = aux;
-                    token[1] = look;
-                    token[2] = '\0';
-
-                    ntoken++;
-                }
-            }
-        }
-
-
-
+    token[i] = '\0';
+    ntoken++;
 }
 
 /*********************************
@@ -391,6 +366,6 @@ void getOp(FILE *p)
  ********************************/
 int isOp(char c)
 {
-    return (strchr("#,.+-*/<>:=!", c) != NULL); //Returns a pointer to the first occurrence of character in the C string str.
+    return (strchr("#,.+-*/<>:=!{}()", c) != NULL); //Returns a pointer to the first occurrence of character in the C string str.
 }
 
